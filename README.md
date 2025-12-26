@@ -154,8 +154,7 @@ Final score is clamped between **0 and 100**.
 .
 ├── app.py              # Flask backend
 ├── templates/
-│   └── scanner.html    # UI + Plotly.js
-├── .env                # API key (not committed)
+│   └── scanner.html    # UI     
 └── README.md
 ```
 
