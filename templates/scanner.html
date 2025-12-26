@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Threat Intelligence</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+<style>
+body{background:#020617;color:#e5e7eb;font-family:Inter,system-ui;max-width:1400px;margin:auto;padding:30px}
+.card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:25px;margin-top:25px}
+.chart{height:320px}
+.badge{padding:8px 18px;border-radius:999px;font-weight:700}
+.green{background:#064e3b;color:#34d399}
+.yellow{background:#78350f;color:#facc15}
+.orange{background:#7c2d12;color:#fb923c}
+.red{background:#7f1d1d;color:#f87171}
+input,button{padding:14px;border-radius:12px;border:none;font-size:16px}
+button{background:#38bdf8;font-weight:700;cursor:pointer}
+textarea{width:100%;height:360px;background:#020617;color:#94a3b8;border-radius:12px;border:1px solid #334155;padding:15px}
+.tag{display:inline-block;background:#1e293b;padding:6px 12px;border-radius:12px;margin:4px}
+</style>
+</head>
+
+<body>
+
+<h1>🧬 Threat Intelligence Dashboard</h1>
+
+<form method="POST" class="card">
+  <input  name="url" placeholder="https://example.com" value="{{ url or '' }}" style="width:72%" required>
+  <button>🚀 Analyze</button>
+</form>
+
+{% if error %}
+<div class="card" style="margin-top:20px;border-color:#f87171">
+  <h3>Error</h3>
+  <p>{{ error }}</p>
+</div>
+{% endif %}
+
+{% if visualizations %}
+{% set s = visualizations.analysis %}
+{% set verdict="Clean" %}
+{% set lvl="green" %}
+{% if s.malicious >= 20 %}
+  {% set verdict="Critical" %}
+  {% set lvl="red" %}
+{% elif s.malicious > 4 %}
+  {% set verdict="Dangerous" %}
+  {% set lvl="orange" %}
+{% elif s.suspicious > 0 %}
+  {% set verdict="Suspicious" %}
+  {% set lvl="yellow" %}
+{% endif %}
+
+<div class="card" style="margin-top:20px">
+  <h2>🛡️ Threat Level:
+    <span class="badge {{ lvl }}">{{ verdict }}</span>
+  </h2>
+  <p>Trust score: {{ visualizations.trust_score }}/100</p>
+</div>
+
+<div class="card" style="margin-top:20px">
+  <h3>ℹ️ Metadata</h3>
+  <p><strong>URL:</strong> {{ visualizations.meta.final_url or url }}</p>
+  <p><strong>Title:</strong> {{ visualizations.meta.title or '—' }}</p>
+  <p><strong>TLD:</strong> {{ visualizations.meta.tld or '—' }}</p>
+  <p><strong>Submitted times:</strong> {{ visualizations.timeline.times_submitted }}</p>
+  <p><strong>First submit:</strong> {{ visualizations.timeline.first or '—' }}</p>
+  <p><strong>Last analysis:</strong> {{ visualizations.timeline.analysis or '—' }}</p>
+
+  {% if visualizations.meta.tags %}
+    <p><strong>Tags:</strong>
+      {% for t in visualizations.meta.tags %}
+        <span class="tag">{{ t }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  {% if visualizations.meta.threat_names %}
+    <p><strong>Threat names:</strong>
+      {% for t in visualizations.meta.threat_names %}
+        <span class="tag">{{ t }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  {% if visualizations.meta.categories %}
+    <p><strong>Categories:</strong>
+      {% for t in visualizations.meta.categories %}
+        <span class="tag">{{ t }}</span>
+      {% endfor %}
+    </p>
+  {% endif %}
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>📊 Detection</h3>
+    <div id="donut" class="chart"></div>
+  </div>
+
+  <div class="card">
+    <h3>🕸️ Threat Radar</h3>
+    <div id="radar" class="chart"></div>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Reputation & Trust</h3>
+    <div id="trust" class="chart"></div>
+  </div>
+
+  <div class="card">
+    <h3>🗳️ Community Votes</h3>
+    <div id="votes" class="chart"></div>
+  </div>
+
+</div>
+
+<div class="card" style="margin-top:25px">
+  <h3>📋 Full JSON</h3>
+  <textarea readonly>{{ result }}</textarea>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // figures from Python come as JSON strings, so we parse [web:45][web:47]
+  const figDonut   = JSON.parse('{{ figures.donut   | safe }}');
+  const figRadar   = JSON.parse('{{ figures.radar   | safe }}');
+  const figTrust   = JSON.parse('{{ figures.trust   | safe }}');
+  const figVotes   = JSON.parse('{{ figures.votes   | safe }}');
+
+  Plotly.newPlot('donut',   figDonut.data,   figDonut.layout  || {});
+  Plotly.newPlot('radar',   figRadar.data,   figRadar.layout  || {});
+  Plotly.newPlot('trust',   figTrust.data,   figTrust.layout  || {});
+  Plotly.newPlot('votes',   figVotes.data,   figVotes.layout  || {});
+});
+</script>
+
+{% endif %}
+</body>
+</html>
