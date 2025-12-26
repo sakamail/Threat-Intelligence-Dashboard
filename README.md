@@ -1,5 +1,3 @@
-Sure 🙂
-Below is the **English version of the README.md**, ready to be used directly on GitHub.
 
 ---
 
