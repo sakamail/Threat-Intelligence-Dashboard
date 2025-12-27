@@ -78,11 +78,11 @@ def calc_trust_score(stats: dict[str, int], votes: dict[str, int], reputation: i
 
 
     score = 100
-    score -= malicious * 20
-    score -= suspicious * 10
-    score -= malicious_votes * 5
-    score += harmless_votes * 2
-    score += reputation
+    score -= malicious * 10
+    score -= suspicious * 5
+    score -= malicious_votes
+    score += harmless_votes
+    score -= (100-reputation)//2
 
 
     return max(0, min(100, score))
@@ -147,8 +147,8 @@ def build_visuals(vt: dict[str, Any]) -> dict[str, Any]:
 
 def build_radar_metrics(visuals: dict[str, Any]) -> tuple[list[float], list[str]]:
     stats = visuals["analysis"]
-    reputation = visuals["reputation"]
-
+    reputation = min(100, visuals["reputation"] * (-1))
+    
 
     malicious = stats.get("malicious", 0)
     suspicious = stats.get("suspicious", 0)
@@ -158,9 +158,8 @@ def build_radar_metrics(visuals: dict[str, Any]) -> tuple[list[float], list[str]
     max_rep = 100
     inv_reputation = max_rep - visuals["trust_score"]
 
-
-    r = [(malicious/total_sum)*1000, (suspicious/total_sum)*1000, inv_reputation]
-    theta = ["Malicious", "Suspicious", "Low reputation"]
+    r = [round((malicious/total_sum)*100),round((suspicious/total_sum)*100), inv_reputation,  reputation]
+    theta = ["Malicious", "Suspicious", "Low Trust", "Low Reputation"]
     return r, theta
 
 
@@ -195,13 +194,13 @@ def build_figures_py(visuals: dict[str, Any]) -> dict[str, str]:
         go.Scatterpolar(
             r=radar_r,
             theta=radar_theta,
-            fill="toself",
+            fill="tonext",
             line_color="darkred",
-            fillcolor="rgba(255,0,0,0.3)",
+            fillcolor="rgba(255,0,0,0.3)"
         )
     )
     fig_radar.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, max(radar_r) * 1.2])),
+        polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
         showlegend=False,
         margin=dict(l=20, r=20, t=20, b=20),
     )
@@ -211,7 +210,7 @@ def build_figures_py(visuals: dict[str, Any]) -> dict[str, str]:
     fig_trust = go.Figure(
         go.Indicator(
             mode="gauge+number",
-            value=trust_score,
+            value=reputation,
             gauge={
                 "axis": {"range": [0, 100]},
                 "bar": {"color": trust_color},
