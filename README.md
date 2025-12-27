@@ -81,7 +81,7 @@ This project demonstrates working with external security APIs, backend developme
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/threat-intelligence-dashboard.git
+git clone https://github.com/your-username/Threat-Intelligence-Dashboard.git
 cd threat-intelligence-dashboard
 ```
 
