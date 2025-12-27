@@ -39,16 +39,15 @@ textarea{width:100%;height:360px;background:#020617;color:#94a3b8;border-radius:
 {% endif %}
 
 {% if visualizations %}
-{% set s = visualizations.analysis %}
 {% set verdict="Clean" %}
 {% set lvl="green" %}
-{% if s.malicious >= 20 %}
+{% if visualizations.trust_score < 10 %}
   {% set verdict="Critical" %}
   {% set lvl="red" %}
-{% elif s.malicious > 4 %}
+{% elif visualizations.trust_score < 50%}
   {% set verdict="Dangerous" %}
   {% set lvl="orange" %}
-{% elif s.suspicious > 0 %}
+{% elif visualizations.trust_score < 90 %}
   {% set verdict="Suspicious" %}
   {% set lvl="yellow" %}
 {% endif %}
@@ -107,7 +106,7 @@ textarea{width:100%;height:360px;background:#020617;color:#94a3b8;border-radius:
   </div>
 
   <div class="card">
-    <h3>🎯 Reputation & Trust</h3>
+    <h3>🎯 Reputation </h3>
     <div id="trust" class="chart"></div>
   </div>
 
