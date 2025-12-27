@@ -132,21 +132,6 @@ https://example.com
    * calculate the Trust Score
    * render interactive charts and metadata
 
----
-
-## 📊 Trust Score Logic
-
-The Trust Score is calculated as follows:
-
-* −20 points per **malicious** detection
-* −10 points per **suspicious** detection
-* −5 points per **malicious** community vote
-* +2 points per **harmless** community vote
-* +VirusTotal **reputation score**
-
-Final score is clamped between **0 and 100**.
-
----
 
 ## 📁 Project Structure
 
